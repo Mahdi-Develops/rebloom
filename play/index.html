@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ReBloom</title></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ReBloom: a pixel-art game about stress, low mood, anxiety and OCD. Breathe, pop heavy thoughts, and collect sourced Letters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap">
+<style>
+  /* Layout: one full-viewport stage; the game canvas letterboxes inside it, DOM sheets float over it.
+     Single committed night-sky look (the game art is dark), so no light variant. */
+  :root {
+    --night: #0f0e1c;
+    --ink: #1b1a2e;
+    --slate: #3d4560;
+    --paper: #f4e9cd;
+    --paper-edge: #d9c9a3;
+    --sky: #8fc1e3;
+    --blue: #4f7cac;
+    --gold: #f2c14e;
+    --rose: #e89bb0;
+    --ember: #c8553d;
+    --ui-text: #e8edf5;
+    --font-pixel: "Pixelify Sans", "Trebuchet MS", sans-serif;
+    --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --font-title: "Press Start 2P", "Courier New", monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body { background: var(--night); color: var(--ui-text); font-family: var(--font-body); overflow: hidden; }
+  #game { position: fixed; inset: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+  #game canvas { image-rendering: pixelated; touch-action: none; }
+  #ui[hidden] { display: none !important; }
+  .veil { position: fixed; inset: 0; z-index: 20; background: rgba(15, 14, 28, 0.78); display: flex; align-items: center; justify-content: center; padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .sheet { width: 100%; max-width: 40rem; max-height: 100%; overflow-y: auto; background: var(--ink); color: var(--ui-text); border: 3px solid var(--slate); box-shadow: 0 0 0 3px var(--night), 6px 6px 0 3px rgba(0,0,0,.45); padding: 1.25rem 1.4rem; line-height: 1.55; font-size: 1rem; }
+  .sheet.small { max-width: 26rem; }
+  .sheet h2 { font-family: var(--font-title); font-size: 1rem; line-height: 1.5; margin: 0 0 1rem; color: var(--gold); text-wrap: balance; letter-spacing: .02em; }
+  .sheet h3 { font-family: var(--font-pixel); font-weight: 600; font-size: 1.2rem; margin: 1.1rem 0 .35rem; color: var(--sky); }
+  .sheet p { margin: 0 0 .65rem; max-width: 62ch; }
+  .sheet a { color: var(--sky); text-underline-offset: 2px; }
+  .sheet ul, .sheet ol { padding-left: 1.2rem; margin: 0 0 .6rem; }
+  .sheet li { margin-bottom: .35rem; }
+  /* The Letter reads like paper left behind by the boss. */
+  .sheet.letter { background: var(--paper); color: var(--ink); border-color: var(--paper-edge); }
+  .sheet.letter .lh { border-bottom: 2px dashed var(--paper-edge); margin-bottom: .6rem; padding-bottom: .5rem; }
+  .sheet.letter h2 { color: var(--ink); margin-bottom: 0; font-size: 1.15rem; }
+  .sheet.letter h3 { color: var(--blue); }
+  .sheet.letter a { color: #2f5a86; }
+  .eyebrow { font-family: var(--font-pixel); font-size: .95rem; color: #6b6150; margin: 0 0 .5rem !important; letter-spacing: .03em; }
+  .mk { font-size: .78rem; vertical-align: super; text-decoration: none; margin-left: 1px; font-weight: 700; }
+  .myths { list-style: none; padding: 0 !important; }
+  .myths li { background: rgba(255,255,255,.5); border-left: 4px solid var(--rose); padding: .45rem .6rem; margin-bottom: .5rem; }
+  .facts li::marker { color: var(--blue); }
+  .tag { font-family: var(--font-pixel); font-weight: 600; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; padding: 0 .3rem; margin-right: .2rem; }
+  .tag.myth { background: var(--rose); color: var(--ink); }
+  .tag.fact { background: var(--sky); color: var(--ink); }
+  .sub { font-weight: 700; margin-top: .4rem !important; }
+  .srcs ol { font-size: .9rem; }
+  .srcs li.flash, li.flash { background: #ffe9a8; }
+  .disclaimer { font-size: .9rem; opacity: .85; border-top: 1px solid currentColor; padding-top: .6rem; margin-top: 1rem !important; }
+  .row { display: flex; gap: .6rem; margin-top: .8rem; flex-wrap: wrap; }
+  .btn { font-family: var(--font-pixel); font-size: 1.05rem; font-weight: 600; padding: .5rem .95rem; background: var(--slate); color: var(--ui-text); border: 2px solid var(--night); box-shadow: inset 0 -3px 0 rgba(0,0,0,.3); cursor: pointer; }
+  .btn:hover { filter: brightness(1.15); }
+  .btn.primary { background: var(--blue); }
+  .btn.danger { background: var(--ember); }
+  .letter .btn { color: var(--paper); }
+  .btn:focus-visible, .sheet a:focus-visible, .sheet input:focus-visible, .sheet select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .form { display: grid; gap: .45rem; }
+  .form label { font-family: var(--font-pixel); font-size: 1.05rem; }
+  .form .check { display: flex; gap: .5rem; align-items: center; font-family: var(--font-body); font-size: 1rem; }
+  .form input[type=range] { width: 100%; accent-color: var(--sky); }
+  .form input[type=checkbox] { width: 1.15rem; height: 1.15rem; accent-color: var(--sky); }
+  .form select, .form input:not([type]) { font: inherit; padding: .45rem .55rem; background: var(--night); color: var(--ui-text); border: 2px solid var(--slate); max-width: 100%; }
+  .hint { font-size: .9rem; opacity: .75; }
+  .confirm { margin-top: .8rem; padding: .7rem; border: 2px solid var(--ember); }
+  .srcblock { border-top: 1px solid var(--slate); padding-top: .4rem; }
+  .srcblock h3 { margin-top: .5rem; font-size: 1.05rem; }
+  .kind { font-family: var(--font-pixel); font-size: .8rem; color: var(--gold); margin-left: .25rem; text-transform: uppercase; letter-spacing: .05em; }
+  .copyta { width: 100%; min-height: 8rem; margin-top: .5rem; font: .85rem/1.4 var(--font-body); }
+  .status { min-height: 1.2em; font-size: .9rem; margin-top: .4rem; }
+  #rotate { position: fixed; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); z-index: 10; text-align: center; padding: .6rem max(16px, env(safe-area-inset-right, 0px)) .6rem max(16px, env(safe-area-inset-left, 0px)); font-family: var(--font-pixel); color: var(--sky); font-size: 1rem; display: none; }
+  @media (orientation: portrait) and (max-width: 700px) { #rotate { display: block; } }
+  #fail { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; font-family: var(--font-pixel); }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div id="game" aria-label="ReBloom game. Move with WASD or arrow keys, Space to breathe, P to pause."></div>
+<div id="ui" hidden></div>
+<p id="rotate">Turn your phone sideways for the best view.</p>
+<noscript><p id="fail">This game needs JavaScript to run.</p></noscript>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.80.1/phaser.min.js"></script>
+<script src="manifest.js"></script>
+<script src="content.js"></script>
+<script src="core.js"></script>
+<script src="audio.js"></script>
+<script src="scenes.js"></script>
+<script src="roomdata.js"></script>
+<script src="run.js"></script>
+<script>
+  (function () {
+    var S = window.SANC;
+    function unlockAudio() { S.audio.init(); }
+    document.addEventListener('pointerdown', unlockAudio, { once: false, passive: true });
+    document.addEventListener('keydown', unlockAudio, { once: false });
+    function start() {
+      if (S.game) return;
+      if (!window.Phaser) { document.getElementById('game').innerHTML = '<p id="fail">The game engine did not load. Check your connection and reload the page.</p>'; return; }
+      S.game = new Phaser.Game({
+        type: Phaser.AUTO, parent: 'game', width: S.W * S.ZOOM, height: S.H * S.ZOOM,
+        backgroundColor: '#0f0e1c', pixelArt: true, roundPixels: true,
+        scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+        input: { activePointers: 3 },
+        scene: S.MenuScenes.concat([S.RunScene])
+      });
+      window.__game = S.game;
+    }
+    var fonts = document.fonts ? Promise.all([
+      document.fonts.load('16px "Pixelify Sans"'), document.fonts.load('600 16px "Pixelify Sans"'), document.fonts.load('16px "Press Start 2P"')
+    ]) : Promise.resolve();
+    Promise.race([fonts, new Promise(function (r) { setTimeout(r, 2500); })]).then(start, start);
+  })();
+</script>
+
+</body></html>

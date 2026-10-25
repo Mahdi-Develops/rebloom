@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="ReBloom: a pixel-art game about stress, low mood, anxiety and OCD, where every fact has a source.">
+<title>ReBloom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Pixelify+Sans:wght@400;600&family=Press+Start+2P&display=swap">
+<style>
+/* Layout: a night-garden diorama. Pixel sky + hills hero, then content panels on dark soil, framed like the game's own UI. Single dark look by choice (matches the game). */
+:root {
+  --night: #120d26;
+  --soil: #1a1233;
+  --panel: #231a45;
+  --panel-edge: #4c3a74;
+  --ink: #e9e2ff;
+  --muted: #a99cd0;
+  --pink: #f7a8c4;
+  --gold: #fff1a8;
+  --sky: #bfe3ff;
+  --mint: #9be3a6;
+  --rose-btn: #e46d97;
+  --paper: #f4e9cd;
+  --paper-ink: #2a2238;
+  --f-title: "Press Start 2P", "Courier New", monospace;
+  --f-pixel: "Pixelify Sans", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--night); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6; overflow-x: hidden; }
+img.px, .px { image-rendering: pixelated; image-rendering: crisp-edges; }
+a { color: var(--sky); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h2 { font-family: var(--f-title); font-size: clamp(18px, 2.6vw, 26px); line-height: 1.5; color: var(--gold); text-shadow: 3px 3px 0 #000a; }
+h3 { font-family: var(--f-pixel); font-weight: 600; font-size: 22px; line-height: 1.25; color: var(--ink); }
+p { margin: 0; }
+.eyebrow { font-family: var(--f-pixel); font-weight: 600; font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+.lede { color: var(--muted); max-width: 62ch; }
+
+/* pixel frame used across the game */
+.frame { background: var(--panel); border: 3px solid var(--panel-edge); box-shadow: 0 0 0 3px #0b0818, 6px 6px 0 3px #0b081899; }
+.paper { background: var(--paper); color: var(--paper-ink); border: 3px solid #b9a37a; box-shadow: 0 0 0 3px #0b0818, 6px 6px 0 3px #0b081899; }
+
+/* buttons copied from the in-game kit */
+.btn { display: inline-flex; align-items: center; gap: 10px; font-family: var(--f-pixel); font-weight: 600; font-size: 20px; text-decoration: none; padding: 12px 22px 14px; color: #fff; background: #3f5f9a; border: 3px solid #0b0818; box-shadow: inset 0 -5px 0 #0003, inset 0 3px 0 #ffffff40; transition: transform .08s; }
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(1px); box-shadow: inset 0 3px 0 #0003; }
+.btn.rose { background: var(--rose-btn); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--panel-edge); box-shadow: none; }
+.btn img { width: 24px; height: 24px; }
+
+/* nav */
+nav.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: #120d26e6; backdrop-filter: blur(6px); border-bottom: 3px solid #0b0818; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--night); }
+nav.top .wrap { display: flex; align-items: center; gap: 18px; padding-block: 10px; }
+nav.top .brand img { height: 34px; width: auto; display: block; }
+nav.top ul { display: flex; gap: 18px; list-style: none; margin: 0 0 0 auto; padding: 0; font-family: var(--f-pixel); font-size: 17px; }
+nav.top ul a { color: var(--ink); text-decoration: none; }
+nav.top ul a:hover { color: var(--gold); }
+nav.top .btn { font-size: 16px; padding: 7px 14px 9px; }
+@media (max-width: 760px) { nav.top ul { display: none; } nav.top .btn { margin-left: auto; } }
+
+/* hero: the game's own loading-screen diorama */
+.hero { position: relative; overflow: hidden; border-bottom: 3px solid #0b0818; }
+.hero .layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+.hero .flowers { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: auto; min-height: 90px; object-fit: cover; object-position: center top; }
+.fly { position: absolute; width: 6px; height: 6px; background: #fff6c8; box-shadow: 0 0 10px 3px #ffe9a080; animation: drift 9s ease-in-out infinite; }
+@keyframes drift { 0%,100% { transform: translate(0,0); opacity: .3; } 50% { transform: translate(18px,-26px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fly, .bloom { animation: none !important; } }
+.hero-in { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1.15fr; gap: 40px; align-items: center; padding-block: 56px 150px; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero-copy .logo { width: min(100%, 495px); height: auto; filter: drop-shadow(5px 5px 0 #0008); }
+.hero-copy .tag { font-family: var(--f-pixel); font-size: 24px; color: var(--sky); line-height: 1.35; }
+.hero-copy .pitch { max-width: 46ch; color: var(--ink); }
+.hero-copy .ctas { display: flex; flex-wrap: wrap; gap: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; font-family: var(--f-pixel); font-size: 15px; }
+.chips span { padding: 3px 10px; background: #0b0818b3; border: 2px solid var(--panel-edge); color: var(--muted); }
+.trailer { min-width: 0; }
+.trailer video { width: 100%; max-width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
+.trailer .frame { padding: 8px; }
+.trailer p { font-family: var(--f-pixel); font-size: 15px; color: var(--muted); margin-top: 12px; }
+@media (max-width: 900px) { .hero-in { grid-template-columns: 1fr; padding-block: 36px 120px; } }
+
+section { padding-block: 72px; }
+.head { display: grid; gap: 12px; margin-bottom: 32px; }
+
+/* why */
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.why .frame { padding: 22px; display: grid; gap: 10px; align-content: start; }
+.why .big { font-family: var(--f-title); font-size: 24px; color: var(--pink); line-height: 1.3; }
+.why .src { font-family: var(--f-pixel); font-size: 14px; color: var(--muted); }
+@media (max-width: 860px) { .why { grid-template-columns: 1fr; } }
+
+/* screenshots */
+.shots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px; }
+.shot { margin: 0; min-width: 0; }
+.shot img { width: 100%; height: auto; display: block; aspect-ratio: 16/9; object-fit: cover; border: 3px solid #0b0818; }
+.shot figcaption { font-family: var(--f-pixel); font-size: 16px; color: var(--muted); margin-top: 8px; }
+.shot figcaption b { color: var(--ink); font-weight: 600; }
+.shot.w3 { grid-column: span 3; } .shot.w2 { grid-column: span 2; }
+@media (max-width: 760px) { .shots { grid-template-columns: 1fr; } .shot.w3, .shot.w2 { grid-column: auto; } }
+
+/* bosses */
+.bosses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.boss { padding: 18px; display: grid; gap: 10px; align-content: start; }
+.boss .art { background: #0b0818; border: 2px solid var(--panel-edge); display: grid; place-items: center; padding: 10px; }
+.boss .art img { width: 144px; height: 144px; }
+.boss .cond { font-family: var(--f-pixel); font-weight: 600; font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--pink); }
+.boss .room { font-family: var(--f-pixel); font-size: 15px; color: var(--sky); }
+.boss dl { margin: 4px 0 0; display: grid; gap: 8px; font-size: 15px; }
+.boss dt { font-family: var(--f-pixel); font-size: 14px; color: var(--muted); }
+.boss dd { margin: 0; }
+@media (max-width: 1000px) { .bosses { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .bosses { grid-template-columns: 1fr; } }
+
+/* how to play */
+.how { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; }
+.loop { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: s; }
+.loop li { display: grid; grid-template-columns: 48px 1fr; gap: 14px; align-items: start; padding: 14px 16px; }
+.loop li::before { counter-increment: s; content: counter(s); font-family: var(--f-title); font-size: 16px; color: var(--paper-ink); background: var(--gold); width: 40px; height: 40px; display: grid; place-items: center; border: 3px solid #0b0818; }
+.loop b { font-family: var(--f-pixel); font-weight: 600; font-size: 19px; display: block; color: var(--ink); }
+.controls { padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.controls table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.controls th { text-align: left; font-family: var(--f-pixel); font-weight: 600; color: var(--muted); font-size: 15px; padding: 6px 0; border-bottom: 2px solid var(--panel-edge); }
+.controls td { padding: 8px 0; border-bottom: 1px solid #4c3a7466; vertical-align: top; }
+.controls td:first-child { width: 46%; padding-right: 10px; }
+kbd { font-family: var(--f-pixel); font-size: 14px; background: #0b0818; border: 2px solid var(--panel-edge); border-bottom-width: 4px; padding: 0 6px; color: var(--gold); white-space: nowrap; }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: 74px 1fr; gap: 10px; align-items: center; font-family: var(--f-pixel); font-size: 15px; }
+.bar i { height: 12px; border: 2px solid #0b0818; display: block; background: #4a1630; }
+.bar i span { display: block; height: 100%; }
+@media (max-width: 860px) { .how { grid-template-columns: 1fr; } }
+
+/* tools */
+.tools { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.tool { padding: 16px; display: grid; gap: 8px; align-content: start; }
+.tool img { width: 48px; height: 48px; }
+.tool b { font-family: var(--f-pixel); font-weight: 600; font-size: 18px; }
+.tool p { font-size: 15px; color: var(--muted); }
+@media (max-width: 980px) { .tools { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .tools { grid-template-columns: 1fr; } }
+
+/* science */
+.sci { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.letter { padding: 26px; display: grid; gap: 14px; }
+.letter .from { font-family: var(--f-pixel); font-size: 15px; color: #6b6150; }
+.letter h3 { color: #3c6288; font-family: var(--f-title); font-size: 15px; line-height: 1.5; }
+.letter ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 16px; }
+.tagm, .tagf { font-family: var(--f-pixel); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; padding: 0 6px; margin-right: 6px; color: #fff; }
+.tagm { background: #c8553d; } .tagf { background: #3f8f4a; }
+.letter sup { color: #3c6288; font-weight: 700; }
+.letter .refs { font-size: 13px; color: #6b6150; border-top: 2px dashed #b9a37a; padding-top: 10px; }
+.process { display: grid; gap: 14px; }
+.process .frame { padding: 16px 18px; }
+.process b { font-family: var(--f-pixel); font-weight: 600; color: var(--gold); font-size: 18px; display: block; }
+.srcs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.srcs a { font-family: var(--f-pixel); font-size: 15px; background: #0b0818; border: 2px solid var(--panel-edge); padding: 4px 10px; text-decoration: none; }
+@media (max-width: 860px) { .sci { grid-template-columns: 1fr; } }
+
+/* closing */
+.closing { position: relative; overflow: hidden; border-top: 3px solid #0b0818; }
+.closing .layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; }
+.closing .wrap { position: relative; z-index: 2; padding-block: 72px 130px; display: grid; justify-items: center; text-align: center; gap: 18px; }
+.bloom { width: 144px; height: 144px; background: url(img/bloom.png) 0 0 / 1152px 144px; image-rendering: pixelated; animation: grow 2.4s steps(7) infinite alternate; }
+@keyframes grow { to { background-position: -1008px 0; } }
+footer { background: var(--soil); border-top: 3px solid #0b0818; }
+footer .wrap { padding-block: 28px; display: grid; gap: 10px; font-size: 15px; color: var(--muted); }
+footer b { color: var(--ink); }
+</style>
+
+</head><body>
+<nav class="top" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="ReBloom home"><img class="px" src="img/logo-small.png" alt="ReBloom"></a>
+    <ul>
+      <li><a href="#screens">Screenshots</a></li>
+      <li><a href="#bosses">Bosses</a></li>
+      <li><a href="#how">How to play</a></li>
+      <li><a href="#science">The science</a></li>
+    </ul>
+    <a class="btn rose" href="/play/">Play free</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <img class="layer px" src="img/ld_sky.png" alt="">
+  <img class="layer px" src="img/ld_hills1.png" alt="">
+  <img class="layer px" src="img/ld_hills2.png" alt="">
+  <img class="layer px" src="img/ld_hills3.png" alt="">
+  <img class="flowers px" src="img/ld_flowers.png" alt="">
+  <i class="fly" style="left:8%;top:64%"></i><i class="fly" style="left:22%;top:78%;animation-delay:-3s"></i><i class="fly" style="left:47%;top:70%;animation-delay:-5s"></i><i class="fly" style="left:63%;top:82%;animation-delay:-1s"></i><i class="fly" style="left:86%;top:66%;animation-delay:-6s"></i><i class="fly" style="left:93%;top:84%;animation-delay:-2s"></i>
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <img class="logo px" src="img/logo.png" alt="ReBloom">
+      <p class="tag">A little game about minds that grow back.</p>
+      <p class="pitch">A pixel-art action game where you face Depression, Stress, Anxiety and OCD as bosses. Every fight teaches one true thing about the mind, and every fact comes with its source.</p>
+      <div class="ctas">
+        <a class="btn rose" href="/play/"><img class="px" src="img/tool-pulse.png" alt="">Play in your browser</a>
+        <a class="btn ghost" href="#how">How to play</a>
+      </div>
+      <div class="chips" aria-label="Game facts"><span>Free</span><span>Desktop and phone</span><span>No install, no account</span></div>
+    </div>
+    <div class="trailer">
+      <div class="frame"><video src="img/trailer.mp4" poster="img/poster.png" controls preload="metadata" playsinline aria-label="ReBloom trailer, 30 seconds"></video></div>
+      <p>Trailer, 30 s. All footage and music come from the game itself.</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="why">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Why we made it</span>
+        <h2>Most of us were never taught how our own mind works</h2>
+        <p class="lede">Mental health problems are common, the myths around them keep people quiet, and the good news about treatment is the least known part. A leaflet gets read once. A game gets played again and again, so we used one.</p>
+      </div>
+      <div class="why">
+        <div class="frame"><span class="big">5.2%</span><p>of adults worldwide had depression in 2023, by WHO's estimate.</p><span class="src">Source: WHO</span></div>
+        <div class="frame"><span class="big">470 million</span><p>people lived with an anxiety disorder in 2023, by WHO's estimate.</p><span class="src">Source: WHO</span></div>
+        <div class="frame"><span class="big">Treatable</span><p>With the right treatment and support, most people with depression can make a full recovery. Effective treatments exist for anxiety disorders and OCD too.</p><span class="src">Sources: NHS, WHO, NIMH</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens" style="background:var(--soil)">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Screenshots</span>
+        <h2>Cozy room, hard bosses</h2>
+      </div>
+      <div class="shots">
+        <figure class="shot w3"><img class="px" src="img/shot-room.png" alt="The player's room with fairy lights, a sleeping cat and a record player" loading="lazy"><figcaption><b>Your room.</b> Gold from runs buys decor, and Lumi shares a sourced fact when you tap her.</figcaption></figure>
+        <figure class="shot w3"><img class="px" src="img/shot-net.png" alt="The player throwing Dream Nets at clouds in the Rainy Room" loading="lazy"><figcaption><b>The Rainy Room.</b> The Dream Net bursts into webs that slow enemies and calm you.</figcaption></figure>
+        <figure class="shot w2"><img class="px" src="img/shot-gloom.png" alt="The Gloom raincloud boss in its angry phase" loading="lazy"><figcaption><b>The Gloom.</b> Depression, as a raincloud.</figcaption></figure>
+        <figure class="shot w2"><img class="px" src="img/shot-crowd.png" alt="The Crowd boss with orbiting masks and a spotlight" loading="lazy"><figcaption><b>The Crowd.</b> Anxiety, as watching masks.</figcaption></figure>
+        <figure class="shot w2"><img class="px" src="img/shot-loop.png" alt="The Loop padlock boss in the Perfect Room" loading="lazy"><figcaption><b>The Loop.</b> OCD, as a padlock that checks twice.</figcaption></figure>
+        <figure class="shot w3"><img class="px" src="img/shot-quiz.png" alt="A Myth or Fact question answered correctly, with its NHS source" loading="lazy"><figcaption><b>Mastery mode.</b> Myth or fact? A right answer hits the boss hard.</figcaption></figure>
+        <figure class="shot w3"><img class="px" src="img/shot-title.png" alt="The ReBloom title screen with a pink flower under the moon" loading="lazy"><figcaption><b>Title screen.</b> Every track is synthesized live in the browser.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="bosses">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Four bosses</span>
+        <h2>Each one is a condition turned into a creature</h2>
+        <p class="lede">Every boss has three phases and three health bars. Between phases it talks back, its art gets angrier, and Lumi answers with a sourced fact. Beat it once and its Letter opens in your Library.</p>
+      </div>
+      <div class="bosses">
+        <article class="boss frame">
+          <div class="art"><img class="px" src="img/boss-gloom.png" alt="The Gloom, a heavy raincloud"></div>
+          <span class="cond">Depression</span><h3>The Gloom</h3><span class="room">The Rainy Room</span>
+          <dl><dt>How it fights</dt><dd>Curtains of rain with one safe gap, tear shots, lightning in phase 3.</dd><dt>What it teaches</dt><dd>It can happen to anyone. It is a real illness, not a weakness.</dd></dl>
+        </article>
+        <article class="boss frame">
+          <div class="art"><img class="px" src="img/boss-deadline.png" alt="The Deadline, a ringing alarm clock"></div>
+          <span class="cond">Stress and burn-out</span><h3>The Deadline</h3><span class="room">The Overflowing Desk</span>
+          <dl><dt>How it fights</dt><dd>Clock-hand shots, ticking rings, paper storms, sticky-note minions.</dd><dt>What it teaches</dt><dd>Stress is natural; too much harms. Do what matters most first.</dd></dl>
+        </article>
+        <article class="boss frame">
+          <div class="art"><img class="px" src="img/boss-crowd.png" alt="The Crowd, a ring of watching masks"></div>
+          <span class="cond">Anxiety</span><h3>The Crowd</h3><span class="room">The Empty Theatre</span>
+          <dl><dt>How it fights</dt><dd>Orbiting masks that dash at you, and a spotlight that raises stress.</dd><dt>What it teaches</dt><dd>Anxiety is normal. Anxiety disorders are common and treatable.</dd></dl>
+        </article>
+        <article class="boss frame">
+          <div class="art"><img class="px" src="img/boss-ocd.png" alt="The Loop, a padlock with a clock face"></div>
+          <span class="cond">OCD</span><h3>The Loop</h3><span class="room">The Perfect Room</span>
+          <dl><dt>How it fights</dt><dd>Every attack repeats. Glowing urge tiles tempt you to step on them.</dd><dt>What it teaches</dt><dd>A ritual brings brief relief, then the worry returns. Therapy like ERP helps.</dd></dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" style="background:var(--soil)">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">How to play</span>
+        <h2>Survive the waves, calm the stress, beat the boss</h2>
+      </div>
+      <div class="how">
+        <ol class="loop">
+          <li class="frame"><div><b>Make your character</b>Pick skin, hair, outfit and an accessory, then step into your room.</div></li>
+          <li class="frame"><div><b>Survive three waves</b>Enemies are heavy thoughts. Waves are randomized every run, so no two runs match.</div></li>
+          <li class="frame"><div><b>Pick a habit</b>Between waves choose an upgrade like The Pause, Boundary or A Friend. Each one carries a short tip and its source.</div></li>
+          <li class="frame"><div><b>Beat the boss</b>Three phases, three health bars, and a conversation in between. Then travel to the next room.</div></li>
+          <li class="frame"><div><b>Read the Letter</b>Each boss leaves a Letter in your Library: what it is, myths and facts, what helps, and when to reach out.</div></li>
+        </ol>
+        <div class="controls frame">
+          <h3>Controls</h3>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th scope="col">Action</th><th scope="col">Keyboard and mouse</th></tr></thead>
+              <tbody>
+                <tr><td>Move</td><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or arrows</td></tr>
+                <tr><td>Aim and fire</td><td>Mouse, hold left click (or <kbd>J</kbd>)</td></tr>
+                <tr><td>Staff swing, parries pink thoughts</td><td>Right click or <kbd>K</kbd></td></tr>
+                <tr><td>Dash</td><td><kbd>Shift</kbd></td></tr>
+                <tr><td>Breathe (stand still)</td><td><kbd>Space</kbd></td></tr>
+                <tr><td>Pause</td><td><kbd>P</kbd> or <kbd>Esc</kbd></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size:15px;color:var(--muted)">On a phone: drag on the left half to move, fire is automatic, and buttons on the right handle staff, dash and Breathe.</p>
+          <h3>Two bars to watch</h3>
+          <div class="bars">
+            <div class="bar"><span>Health</span><i><span style="width:78%;background:#e85a7a"></span></i></div>
+            <div class="bar"><span>Stress</span><i style="background:#22284a"><span style="width:64%;background:#f2c14e"></span></i></div>
+          </div>
+          <p style="font-size:15px;color:var(--muted)">Past 70% stress your aim wobbles and you fire slower. At 100% you are overwhelmed and lose health. Breathe, collect clarity orbs, or stand in a Dream Net web to bring it down.</p>
+        </div>
+      </div>
+
+      <div class="head" style="margin-top:56px;margin-bottom:22px">
+        <h3>Five coping tools. None is stronger, each plays differently.</h3>
+      </div>
+      <div class="tools">
+        <div class="tool frame"><img class="px" src="img/tool-pulse.png" alt=""><b>Light Wand</b><p>Rapid bolts of light. Easy to aim.</p></div>
+        <div class="tool frame"><img class="px" src="img/tool-journal.png" alt=""><b>Ink Spread</b><p>A burst of ink. Huge knockback up close.</p></div>
+        <div class="tool frame"><img class="px" src="img/tool-lantern.png" alt=""><b>Lantern Beam</b><p>Hold to pour a steady beam through everything.</p></div>
+        <div class="tool frame"><img class="px" src="img/tool-net.png" alt=""><b>Dream Net</b><p>Bursts into a web that slows, snares and calms.</p></div>
+        <div class="tool frame"><img class="px" src="img/tool-headphones.png" alt=""><b>Bass Notes</b><p>Notes that pass through and bounce off walls.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="science">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">The science</span>
+        <h2>Every fact in the game has a source</h2>
+        <p class="lede">All health statements live in one register, each tied to a WHO, NHS, NIMH or MedlinePlus page and labelled as a definition, a fact or guidance. An independent reviewer checked every sentence against its page, and we rewrote the lines that went further than the source.</p>
+      </div>
+      <div class="sci">
+        <article class="letter paper" aria-label="Excerpt from the OCD Letter">
+          <span class="from">A letter left behind by the Loop</span>
+          <h3>Obsessive-Compulsive Disorder (OCD)</h3>
+          <ul>
+            <li><span class="tagm">Myth</span>OCD just means liking things tidy. <i>Not all habits are compulsions.</i><sup>1</sup></li>
+            <li><span class="tagm">Myth</span>Doing the ritual fixes the worry. <i>Relief is only temporary; the obsession and anxiety soon return.</i><sup>2</sup></li>
+            <li><span class="tagf">Fact</span>Having OCD is not your fault.<sup>2</sup></li>
+            <li><span class="tagf">Fact</span>Talking therapy can help with OCD.<sup>1,2</sup></li>
+          </ul>
+          <p class="refs">1. NIMH, Obsessive-Compulsive Disorder. 2. NHS, Obsessive compulsive disorder (OCD). For awareness only. Not a diagnosis or medical advice.</p>
+        </article>
+        <div class="process">
+          <div class="frame"><b>Mechanics that mirror the science</b>The NHS describes a cycle: a compulsion relieves anxiety for a moment, then the worry returns. In the Perfect Room, stepping on an urge tile lowers stress briefly, then it comes back and the boss heals. Letting the urge fade weakens the boss.</div>
+          <div class="frame"><b>Careful about limits</b>The game never diagnoses. It says OCD is unlikely to get better without proper treatment and support, and every Letter tells players when to talk to a doctor.</div>
+          <div class="frame"><b>Read the sources yourself</b>
+            <div class="srcs">
+              <a href="https://www.who.int/news-room/fact-sheets/detail/depression" target="_blank" rel="noopener">WHO: Depression</a>
+              <a href="https://www.nhs.uk/mental-health/conditions/depression-in-adults/overview/" target="_blank" rel="noopener">NHS: Depression</a>
+              <a href="https://www.nhs.uk/mental-health/conditions/obsessive-compulsive-disorder-ocd/overview/" target="_blank" rel="noopener">NHS: OCD</a>
+              <a href="https://medlineplus.gov/obsessivecompulsivedisorder.html" target="_blank" rel="noopener">MedlinePlus: OCD</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing" aria-label="Play ReBloom">
+    <img class="layer px" src="img/ld_sky.png" alt="">
+    <img class="layer px" src="img/ld_hills3.png" alt="">
+    <div class="wrap">
+      <div class="bloom" role="img" aria-label="A pixel flower growing"></div>
+      <h2>Your mind can grow back. Start a run.</h2>
+      <a class="btn rose" href="/play/"><img class="px" src="img/tool-pulse.png" alt="">Play ReBloom</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>ReBloom</b> was made by Mahdi Bouassida for the CodeVerse Hackathon 2026, theme: Education in Health through Games. Built with Phaser 3; original pixel art and synthesized music.</p>
+    <p>For awareness only. Not a diagnosis or medical advice. If you are struggling, talk to someone you trust or a health worker. If you are in danger, contact local emergency services or a crisis line now.</p>
+  </div>
+</footer>
+
+</body></html>
