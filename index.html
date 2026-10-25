@@ -85,6 +85,14 @@ nav.top .btn { font-size: 16px; padding: 7px 14px 9px; }
 .trailer p { font-family: var(--f-pixel); font-size: 15px; color: var(--muted); margin-top: 12px; }
 @media (max-width: 900px) { .hero-in { grid-template-columns: 1fr; padding-block: 36px 120px; } }
 
+.byline { font-family: var(--f-pixel); font-size: 18px; color: var(--ink); }
+.byline b { color: var(--gold); font-weight: 600; }
+.videos { display: grid; grid-template-columns: 1.6fr 1fr; gap: 22px; align-items: start; }
+.vid { margin: 0; padding: 8px; min-width: 0; }
+.vid video { width: 100%; display: block; aspect-ratio: 16/9; background: #000; }
+.vid figcaption { font-family: var(--f-pixel); font-size: 15px; color: var(--muted); margin: 10px 4px 4px; }
+.vid figcaption b { color: var(--ink); font-weight: 600; }
+@media (max-width: 860px) { .videos { grid-template-columns: 1fr; } }
 section { padding-block: 72px; }
 .head { display: grid; gap: 12px; margin-bottom: 32px; }
 
@@ -171,12 +179,13 @@ footer { background: var(--soil); border-top: 3px solid #0b0818; }
 footer .wrap { padding-block: 28px; display: grid; gap: 10px; font-size: 15px; color: var(--muted); }
 footer b { color: var(--ink); }
 </style>
-
 </head><body>
+
 <nav class="top" aria-label="Main">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="ReBloom home"><img class="px" src="img/logo-small.png" alt="ReBloom"></a>
     <ul>
+      <li><a href="#watch">Watch</a></li>
       <li><a href="#screens">Screenshots</a></li>
       <li><a href="#bosses">Bosses</a></li>
       <li><a href="#how">How to play</a></li>
@@ -203,15 +212,30 @@ footer b { color: var(--ink); }
         <a class="btn ghost" href="#how">How to play</a>
       </div>
       <div class="chips" aria-label="Game facts"><span>Free</span><span>Desktop and phone</span><span>No install, no account</span></div>
+      <p class="byline">Made by <b>Mahdi Bouassida</b> and <b>Ayoub Bougacha</b></p>
     </div>
     <div class="trailer">
       <div class="frame"><video src="img/trailer.mp4" poster="img/poster.png" controls preload="metadata" playsinline aria-label="ReBloom trailer, 30 seconds"></video></div>
-      <p>Trailer, 30 s. All footage and music come from the game itself.</p>
+      <p>Trailer, 30 s. All footage and music come from the game itself. <a href="#watch">Watch the full demo</a></p>
     </div>
   </div>
 </header>
 
 <main>
+  <section id="watch" style="background:var(--soil)">
+    <div class="wrap">
+      <div class="head">
+        <span class="eyebrow">Watch</span>
+        <h2>See ReBloom in action</h2>
+        <p class="lede">The 30-second trailer, then a one-minute walkthrough: character creator, your room, the shop, the five tools, the bosses, and the Myth or Fact quiz.</p>
+      </div>
+      <div class="videos">
+        <figure class="frame vid"><video src="img/demo.mp4" poster="img/demo-poster.png" controls preload="metadata" playsinline aria-label="ReBloom demo, about 1 minute"></video><figcaption><b>Demo</b>, about 1 min. A full run: customise, shop, tools, levels, bosses and Myth or Fact.</figcaption></figure>
+        <figure class="frame vid"><video src="img/trailer.mp4" poster="img/poster.png" controls preload="metadata" playsinline aria-label="ReBloom trailer, 30 seconds"></video><figcaption><b>Trailer</b>, 30 s. Boss fights and the theme song.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
   <section id="why">
     <div class="wrap">
       <div class="head">
@@ -377,7 +401,7 @@ footer b { color: var(--ink); }
 
 <footer>
   <div class="wrap">
-    <p><b>ReBloom</b> was made by Mahdi Bouassida for the CodeVerse Hackathon 2026, theme: Education in Health through Games. Built with Phaser 3; original pixel art and synthesized music.</p>
+    <p><b>ReBloom</b> was made by Mahdi Bouassida and Ayoub Bougacha for the CodeVerse Hackathon 2026, theme: Education in Health through Games. Built with Phaser 3; original pixel art and synthesized music.</p>
     <p>For awareness only. Not a diagnosis or medical advice. If you are struggling, talk to someone you trust or a health worker. If you are in danger, contact local emergency services or a crisis line now.</p>
   </div>
 </footer>
