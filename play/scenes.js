@@ -421,7 +421,7 @@
         this.add.image(x + w / 2, y + 16, t.icon).setScale(1.5);
         S.txt(this, x + w / 2, y + 28, t.name, { size: 7, ox: 0.5, color: COL.ink, shadow: false, align: 'center', wrap: w - 6 });
         S.txt(this, x + 5, y + 40, t.desc, { size: 6, color: COL.slate, shadow: false, wrap: w - 9, lineSpacing: 0 });
-        S.txt(this, x + 5, y + 90, 'In-run upgrades:\n' + t.ups.map((u, k) => `${k + 1}. ${u}`).join('\n'), { size: 6, color: COL.blue, shadow: false, wrap: w - 10 });
+        S.txt(this, x + 5, y + 82, 'In-run upgrades:\n' + t.ups.map((u, k) => `${k + 1}. ${u}`).join('\n'), { size: 6, color: COL.blue, shadow: false, wrap: w - 10 });
         const owned = S.save.owned.includes(id), eq = S.save.equippedTool === id;
         let b;
         if (eq) { b = S.button(this, x + 5, y + h - 21, w - 10, 16, 'Equipped', () => { }, { size: 7 }); b.bg.setTint(0x6aa84f); }

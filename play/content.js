@@ -214,7 +214,7 @@
     pulse: { name: "Light Wand", icon: "tool_pulse", price: 0, desc: "Rapid bolts of light. Easy to aim, steady damage.", ups: ["Faster fire", "Twin bolts", "Bolts pierce"] },
     journal: { name: "Ink Spread", icon: "tool_journal", price: 150, desc: "A burst of ink pellets. Huge knockback up close.", ups: ["Seven pellets", "Faster reload", "Pellets pierce"] },
     lantern: { name: "Lantern Beam", icon: "tool_lantern", price: 200, desc: "Hold to pour a steady beam of light through everything in its path.", ups: ["Wider beam", "Longer beam", "Calm beam"] },
-    net: { name: "Dream Net", icon: "tool_net", price: 300, desc: "Throws a dream net that bursts into a web. Slows, snares and calms.", ups: ["Bigger web", "Faster throws", "Blocks shots"] },
+    net: { name: "Dream Net", icon: "tool_net", price: 300, desc: "Throws a net that bursts into a calming web.", ups: ["Bigger web", "Faster throws", "Blocks shots"] },
     headphones: { name: "Bass Notes", icon: "tool_headphones", price: 250, desc: "Notes that pass through everything and bounce off walls.", ups: ["Faster fire", "Five notes", "Double bounce"] }
   };
 
